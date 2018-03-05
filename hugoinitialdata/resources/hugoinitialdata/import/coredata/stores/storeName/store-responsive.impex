@@ -12,7 +12,7 @@
 # Create the BaseStore
 #
 
-$storeUid=__STORE_UID__
+$storeUid=hugoStore
 $checkoutFlowGroup=responsiveCheckoutGroup
 
 # Base Store

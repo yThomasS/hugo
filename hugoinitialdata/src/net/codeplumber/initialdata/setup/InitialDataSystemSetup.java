@@ -56,6 +56,7 @@ public class InitialDataSystemSetup extends AbstractSystemSetup
 		params.add(createBooleanSystemSetupParameter(IMPORT_CORE_DATA, "Import Core Data", true));
 		params.add(createBooleanSystemSetupParameter(IMPORT_SAMPLE_DATA, "Import Sample Data", true));
 		params.add(createBooleanSystemSetupParameter(ACTIVATE_SOLR_CRON_JOBS, "Activate Solr Cron Jobs", true));
+		params.add(createBooleanSystemSetupParameter(ACTIVATE_SOLR_CRON_JOBS, "Import Hugos Shoe Products", true));
 		// Add more Parameters here as you require
 
 		return params;

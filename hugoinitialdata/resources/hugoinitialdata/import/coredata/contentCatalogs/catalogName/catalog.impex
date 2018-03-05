@@ -11,7 +11,7 @@
 #
 # Import the Content Catalog
 #
-$contentCatalog=__CONTENT_CATALOG_NAME__
+$contentCatalog=hugoContentCatalog
 $languages=ja,en,de,zh
 
 # Content catalog for CMS contents

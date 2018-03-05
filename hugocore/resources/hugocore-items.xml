@@ -38,6 +38,24 @@
     <itemtypes>
 
         <!-- Add your item definitions here -->
+        <typegroup name="hugo">
+            <itemtype code="Shoe" extends="Product"
+                      autocreate="true" generate="true"
+                      jaloclass="net.codeplumber.core.jalo.Shoe">
+                <attributes>
+                    <attribute qualifier="size" type="java.lang.Short">
+                        <persistence type="property" />
+                    </attribute>
+                    <attribute qualifier="highheel" type="java.lang.Boolean">
+                        <defaultvalue>false</defaultvalue>
+                        <persistence type="property" />
+                    </attribute>
+                    <attribute qualifier="color" type="localized:java.lang.String">
+                        <persistence type="property" />
+                    </attribute>
+                </attributes>
+            </itemtype>
+        </typegroup>
 
 
         <!-- TypeGroups are for structure of this file only -->

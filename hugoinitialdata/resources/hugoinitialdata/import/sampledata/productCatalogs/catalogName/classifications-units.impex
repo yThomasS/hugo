@@ -11,7 +11,7 @@
 # ImpEx for Importing Units
 
 # Macros / Replacement Parameter definitions
-$classificationCatalog=__CLASSIFICATION_CATALOG_NAME__
+$classificationCatalog=hugoClassificationCatalog
 
 $systemVersion=systemVersion(catalog(id[default='$classificationCatalog']),version[default='1.0'])
 

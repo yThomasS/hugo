@@ -11,8 +11,8 @@
 # ImpEx for Promotions
 
 # Macros / Replacement Parameter definitions
-$productCatalog=__PRODUCT_CATALOG_NAME__
-$defaultPromoGrp=__DEFAULT_PROMO_GRP__
+$productCatalog=hugoProductCatalog
+$defaultPromoGrp=hugoPromoGrp
 
 $favCustomers=favoriteCustomers
 $bigSpenders=bigSpenders
