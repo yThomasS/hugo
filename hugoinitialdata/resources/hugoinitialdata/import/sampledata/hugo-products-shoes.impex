@@ -1,0 +1,16 @@
+# Macros / Replacement Parameter definitions
+$productCatalog=hugoProductCatalog
+$productCatalogName=hugo Summer Products
+
+$catalogVersion=catalogversion(catalog(id[default=$productCatalog]),version[default='Staged'])[unique=true,default=$productCatalog:Staged]
+$supercategories=supercategories(code, $catalogVersion)
+$baseProduct=baseProduct(code,$catalogVersion)
+$approved=approvalstatus(code)[default='approved']
+
+$lang=de
+
+# Insert Products
+INSERT_UPDATE Product;code[unique=true];$supercategories;manufacturerName;manufacturerAID;unit(code);ean;variantType(code);$catalogVersion;$approved
+
+INSERT_UPDATE Shoe;code[unique];size;highheel;color[$lang];$supercategories;$catalogVersion;$approved
+;1;10;true;gelb

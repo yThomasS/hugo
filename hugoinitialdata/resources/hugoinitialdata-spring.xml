@@ -21,12 +21,28 @@
     <context:annotation-config/>
 
 	<!-- System Setup -->
+	<bean id="hugoDataImportService"
+		  class="net.codeplumber.initialdata.setup.HugoDataImportService"
+		  abstract="true">
+		<property name="setupImpexService" ref="setupImpexService"/>
+		<property name="setupSyncJobService" ref="setupSyncJobService"/>
+		<property name="setupSolrIndexerService" ref="setupSolrIndexerService"/>
+		<property name="catalogVersionService" ref="catalogVersionService"/>
+		<property name="eventService" ref="eventService"/>
+		<property name="configurationService" ref="configurationService"/>
+	</bean>
+
+	<bean id="hugoCoreDataImportService" class="net.codeplumber.initialdata.setup.HugoCoreDataImportService"
+		  parent="hugoDataImportService" />
+
+	<bean id="hugoSampleDataImportService" class="net.codeplumber.initialdata.setup.HugoSampleDataImportService"
+		  parent="hugoDataImportService" />
 
 	<bean id="yAcceleratorInitialDataSystemSetup"
 	      class="net.codeplumber.initialdata.setup.InitialDataSystemSetup"
 	      parent="abstractCoreSystemSetup">
-		<property name="coreDataImportService" ref="coreDataImportService"/>
-		<property name="sampleDataImportService" ref="sampleDataImportService"/>
+		<property name="hugoCoreDataImportService" ref="hugoCoreDataImportService"/>
+		<property name="hugoSampleDataImportService" ref="hugoSampleDataImportService"/>
 	</bean>
 
 </beans>

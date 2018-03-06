@@ -13,15 +13,19 @@ package net.codeplumber.initialdata.setup;
 import de.hybris.platform.commerceservices.dataimport.impl.CoreDataImportService;
 import de.hybris.platform.commerceservices.dataimport.impl.SampleDataImportService;
 import de.hybris.platform.commerceservices.setup.AbstractSystemSetup;
+import de.hybris.platform.commerceservices.setup.data.ImportData;
+import de.hybris.platform.commerceservices.setup.events.CoreDataImportedEvent;
+import de.hybris.platform.commerceservices.setup.events.SampleDataImportedEvent;
 import de.hybris.platform.core.initialization.SystemSetup;
 import de.hybris.platform.core.initialization.SystemSetup.Process;
 import de.hybris.platform.core.initialization.SystemSetup.Type;
 import de.hybris.platform.core.initialization.SystemSetupContext;
 import de.hybris.platform.core.initialization.SystemSetupParameter;
 import de.hybris.platform.core.initialization.SystemSetupParameterMethod;
-import net.codeplumber.initialdata.constants.HugoInitialDataConstants;
+import static net.codeplumber.initialdata.constants.HugoInitialDataConstants.EXTENSIONNAME;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -31,7 +35,7 @@ import org.springframework.beans.factory.annotation.Required;
 /**
  * This class provides hooks into the system's initialization and update processes.
  */
-@SystemSetup(extension = HugoInitialDataConstants.EXTENSIONNAME)
+@SystemSetup(extension = EXTENSIONNAME)
 public class InitialDataSystemSetup extends AbstractSystemSetup
 {
 	@SuppressWarnings("unused")
@@ -40,9 +44,13 @@ public class InitialDataSystemSetup extends AbstractSystemSetup
 	private static final String IMPORT_CORE_DATA = "importCoreData";
 	private static final String IMPORT_SAMPLE_DATA = "importSampleData";
 	private static final String ACTIVATE_SOLR_CRON_JOBS = "activateSolrCronJobs";
+	private static final String IMPORT_HUGO_SHOES = "importHugoShoes";
+	private static final String SAMPLE_CONTENT_CATALOG_NAME = "hugoContentCatalog";
+	private static final String SAMPLE_PRODUCT_CATALOG_NAME = "hugoProductCatalog";
+	private static final String SAMPLE_STORE_NAME = "hugoStore";
 
-	private CoreDataImportService coreDataImportService;
-	private SampleDataImportService sampleDataImportService;
+	private HugoCoreDataImportService hugoCoreDataImportService;
+	private HugoSampleDataImportService hugoSampleDataImportService;
 
 	/**
 	 * Generates the Dropdown and Multi-select boxes for the project data import
@@ -56,7 +64,7 @@ public class InitialDataSystemSetup extends AbstractSystemSetup
 		params.add(createBooleanSystemSetupParameter(IMPORT_CORE_DATA, "Import Core Data", true));
 		params.add(createBooleanSystemSetupParameter(IMPORT_SAMPLE_DATA, "Import Sample Data", true));
 		params.add(createBooleanSystemSetupParameter(ACTIVATE_SOLR_CRON_JOBS, "Activate Solr Cron Jobs", true));
-		params.add(createBooleanSystemSetupParameter(ACTIVATE_SOLR_CRON_JOBS, "Import Hugos Shoe Products", true));
+		params.add(createBooleanSystemSetupParameter(IMPORT_HUGO_SHOES, "Import Hugos Shoe Products", true));
 		// Add more Parameters here as you require
 
 		return params;
@@ -80,22 +88,6 @@ public class InitialDataSystemSetup extends AbstractSystemSetup
 	 * initialization. <br>
 	 * Add import data for each site you have configured
 	 *
-	 * <pre>
-	 * final List<ImportData> importData = new ArrayList<ImportData>();
-	 *
-	 * final ImportData sampleImportData = new ImportData();
-	 * sampleImportData.setProductCatalogName(SAMPLE_PRODUCT_CATALOG_NAME);
-	 * sampleImportData.setContentCatalogNames(Arrays.asList(SAMPLE_CONTENT_CATALOG_NAME));
-	 * sampleImportData.setStoreNames(Arrays.asList(SAMPLE_STORE_NAME));
-	 * importData.add(sampleImportData);
-	 *
-	 * getCoreDataImportService().execute(this, context, importData);
-	 * getEventService().publishEvent(new CoreDataImportedEvent(context, importData));
-	 *
-	 * getSampleDataImportService().execute(this, context, importData);
-	 * getEventService().publishEvent(new SampleDataImportedEvent(context, importData));
-	 * </pre>
-	 *
 	 * @param context
 	 *           the context provides the selected parameters and values
 	 */
@@ -105,27 +97,53 @@ public class InitialDataSystemSetup extends AbstractSystemSetup
 		/*
 		 * Add import data for each site you have configured
 		 */
+
+		LOG.info("Create Hugo Shoes Project Data");
+		if (context.getParameterMap().containsKey(EXTENSIONNAME + "_" + IMPORT_HUGO_SHOES)) {
+			if ("true".equalsIgnoreCase(context.getParameterMap().get(EXTENSIONNAME + "_" + IMPORT_HUGO_SHOES)[0])) {
+				LOG.info("Loading impex file");
+				getSetupImpexService().importImpexFile(
+						String.format("/%s/import/sampledata/hugo-products-shoes.impex", EXTENSIONNAME), true);
+			}
+		} else {
+			LOG.info("Parameter is set to false or key does not exists");
+		}
+
+		final List<ImportData> importData = new ArrayList<ImportData>();
+
+	  final ImportData sampleImportData = new ImportData();
+	  sampleImportData.setProductCatalogName(SAMPLE_PRODUCT_CATALOG_NAME);
+	  sampleImportData.setContentCatalogNames(Arrays.asList(SAMPLE_CONTENT_CATALOG_NAME));
+	  sampleImportData.setStoreNames(Arrays.asList(SAMPLE_STORE_NAME));
+	  importData.add(sampleImportData);
+
+	  getHugoCoreDataImportService().execute(this, context, importData);
+	  getEventService().publishEvent(new CoreDataImportedEvent(context, importData));
+
+	  getHugoSampleDataImportService().execute(this, context, importData);
+	  getEventService().publishEvent(new SampleDataImportedEvent(context, importData));
+
 	}
 
-	public CoreDataImportService getCoreDataImportService()
+	public HugoCoreDataImportService getHugoCoreDataImportService()
 	{
-		return coreDataImportService;
+		return hugoCoreDataImportService;
 	}
 
 	@Required
-	public void setCoreDataImportService(final CoreDataImportService coreDataImportService)
+	public void setHugoCoreDataImportService(final HugoCoreDataImportService hugoCoreDataImportService)
 	{
-		this.coreDataImportService = coreDataImportService;
+		this.hugoCoreDataImportService = hugoCoreDataImportService;
 	}
 
-	public SampleDataImportService getSampleDataImportService()
+	public HugoSampleDataImportService getHugoSampleDataImportService()
 	{
-		return sampleDataImportService;
+		return hugoSampleDataImportService;
 	}
 
 	@Required
-	public void setSampleDataImportService(final SampleDataImportService sampleDataImportService)
+	public void setHugoSampleDataImportService(final HugoSampleDataImportService hugoSampleDataImportService)
 	{
-		this.sampleDataImportService = sampleDataImportService;
+		this.hugoSampleDataImportService = hugoSampleDataImportService;
 	}
 }
